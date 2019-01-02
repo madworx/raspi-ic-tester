@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP MCP23017-E_SP
+D MCP23017-E/SP, I/O Expander, 28-Pin SPDIP
+K
+F http://docs-emea.rs-online.com/webdocs/137e/0900766b8137eed4.pdf
+$ENDCMP
+#
+#End Doc Library
