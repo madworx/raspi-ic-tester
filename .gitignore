@@ -1,4 +1,10 @@
 *-cache.lib
 *.bak
+*.drl
+*.gbr
+*.gbrjob
 *.kicad_pcb-bak
 *~
+log.html
+output.xml
+report.html

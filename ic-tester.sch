@@ -905,8 +905,6 @@ Wire Wire Line
 Wire Wire Line
 	3000 6200 3350 6200
 Wire Wire Line
-	3000 6400 3350 6400
-Wire Wire Line
 	3350 6400 3350 6450
 Wire Wire Line
 	3350 6400 3350 6200
@@ -916,12 +914,12 @@ Wire Wire Line
 $Comp
 L Switch:SW_SPST SW1
 U 1 1 5CC00FA1
-P 3650 5950
-F 0 "SW1" H 3650 6185 50  0000 C CNN
-F 1 "SW_SPST" H 3650 6094 50  0000 C CNN
-F 2 "Button_Switch_THT:SW_PUSH_6mm_H13mm" H 3650 5950 50  0001 C CNN
-F 3 "" H 3650 5950 50  0001 C CNN
-	1    3650 5950
+P 3600 5950
+F 0 "SW1" H 3600 6185 50  0000 C CNN
+F 1 "SW_SPST" H 3600 6094 50  0000 C CNN
+F 2 "Button_Switch_THT:SW_PUSH_6mm_H13mm" H 3600 5950 50  0001 C CNN
+F 3 "" H 3600 5950 50  0001 C CNN
+	1    3600 5950
 	0    1    1    0   
 $EndComp
 Wire Wire Line
@@ -967,11 +965,9 @@ Entry Wire Line
 Text Label 5000 1600 0    50   ~ 0
 GPIO1
 Wire Wire Line
-	3350 6400 3650 6400
+	3600 6150 3600 6400
 Wire Wire Line
-	3650 6150 3650 6400
-Wire Wire Line
-	3650 5500 3650 5750
+	3600 5500 3600 5750
 Wire Wire Line
 	5650 5350 5650 5450
 Wire Wire Line
@@ -1170,8 +1166,47 @@ Wire Wire Line
 	5750 1800 6000 1800
 Wire Wire Line
 	5750 1900 6000 1900
+Entry Wire Line
+	6200 1500 6300 1600
+Entry Wire Line
+	6200 1600 6300 1700
+Entry Wire Line
+	6200 1700 6300 1800
+Text Label 6300 1800 0    50   ~ 0
+GND
+Text Label 6300 1700 0    50   ~ 0
+GND
+Text Label 6300 1600 0    50   ~ 0
+GND
+Entry Wire Line
+	6200 1800 6300 1900
+Text Label 6300 1900 0    50   ~ 0
+GND
 Wire Wire Line
-	3000 5500 3650 5500
+	6300 1800 6500 1800
+Wire Wire Line
+	6300 1700 6500 1700
+Wire Wire Line
+	6300 1600 6500 1600
+Wire Wire Line
+	6300 1900 6500 1900
+$Comp
+L Connector_Generic:Conn_01x04 J1
+U 1 1 5C350EC7
+P 6700 1700
+F 0 "J1" H 6780 1692 50  0000 L CNN
+F 1 "Conn_01x04" H 6780 1601 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 6700 1700 50  0001 C CNN
+F 3 "~" H 6700 1700 50  0001 C CNN
+	1    6700 1700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3350 6400 3600 6400
+Wire Wire Line
+	3000 6400 3350 6400
+Wire Wire Line
+	3000 5500 3600 5500
 Wire Bus Line
 	5700 2400 5950 2400
 Wire Bus Line
@@ -1188,6 +1223,8 @@ Wire Bus Line
 	4900 1450 4900 1950
 Wire Bus Line
 	6100 1450 6100 1950
+Wire Bus Line
+	6200 1450 6200 1950
 Wire Bus Line
 	3350 4950 3350 5850
 Wire Bus Line
