@@ -1,9 +1,12 @@
 *-cache.lib
 *.bak
 *.drl
+*.FCStd1
 *.gbr
 *.gbrjob
 *.kicad_pcb-bak
+*.step
+*.stl
 *.wrl
 *~
 log.html
