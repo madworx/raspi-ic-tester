@@ -4,7 +4,9 @@
 *.gbr
 *.gbrjob
 *.kicad_pcb-bak
+*.wrl
 *~
 log.html
 output.xml
 report.html
+shapes3D
