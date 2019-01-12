@@ -2,6 +2,9 @@
 
 import mistune
 
+# Tanke: Kan vi pulla informationen från KiCads libraries?
+# https://mil.ufl.edu/3701/pinouts/7400.html
+# http://www.kingswood-consulting.co.uk/giicm/
 
 import adafruit_mcp230xx
 import board
