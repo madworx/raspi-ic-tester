@@ -1,3 +1,2 @@
 adafruit-circuitpython-mcp230xx
 digitalio
-natsort
