@@ -39,6 +39,12 @@ class RPIICTester(object):
   def _get_pin(self,name):
     return self._pins[name]
 
+  def zero_all_pins(self):
+    for pinname in self._pins.keys():
+      pin = self._get_pin(pinname)
+      pin.direction = digitalio.Direction.INPUT
+      pin.pull = None
+
   def read_pin(self,name):
     pin = self._get_pin(name)
     pin.direction = digitalio.Direction.INPUT
@@ -66,14 +72,7 @@ class RPIICTester(object):
 r = RPIICTester()
 
 ic = parse.IC(parse.parse_file('74ls00.md'))
-#print("Properties")
-#print(ic.properties)
-#print("")
-#print("Pins")
-#print(ic.pins)
-#print("")
-#print("Template")
-#print(ic.template)
+
 
 r.set_led_ready()
 print("Waiting for button press")
@@ -103,6 +102,7 @@ for test in ic.tests.keys():
   print(" * {}".format(test))
   for template_row in ic.template:
     print("   * {} (Mapped: {})".format(template_row['Description'], ic.tests[test]))
+    # Set all IC inputs correctly (RPI outputs)
     for template_column in template_row:
       if template_column != 'Description':
         # Lookup actual pin in test case:
@@ -111,6 +111,7 @@ for test in ic.tests.keys():
         if ic.pins[ic_pin_num][0] == 'I':
           #print( "      Setting {} to {}".format(ic_pin_name, template_row[template_column]))
           r.set_pin(ic.get_zif_padname(ic_pin_num), True if template_row[template_column]=='1' else False)
+    # Validate all IC outputs correctly (RPI inputs)
     for template_column in template_row:
       if template_column != 'Description':
         # Lookup actual pin in test case:
@@ -129,4 +130,6 @@ print("")
 r.set_led_ok(ok)
 r.set_led_fail(not ok)
 
+time.sleep(2)
+r.zero_all_pins()
 sys.exit(1)
