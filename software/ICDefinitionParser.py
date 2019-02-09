@@ -13,7 +13,7 @@ def parse_file(fname):
         lines = re.split(r'\n', content)
         for line in lines:
             if state is None:
-                matches = re.match(r'^#\s*([^#]+)', line)
+                matches = re.match(r'^##?\s*([^#]+)', line)
                 if matches:
                     last_section = matches.group(1)
                     state = 'PARSE_TABLE'

@@ -11,11 +11,13 @@ import RPIICTester
 r = RPIICTester.RPIICTester()
 
 ics = []
+# glob the glob....
 for icdef in glob.glob('*.md'):
     icdata = ICDefinitionParser.parse_file(icdef)
     ics.append(ICDefinitionParser.IC(icdata))
     
 while True:
+    print("")
     ic_id_to_test = input("Enter IC name/number to test> ")
     matching_ics = [x for x in ics if re.match(x.properties['NAME'], ic_id_to_test)]
     if not matching_ics:
@@ -38,7 +40,7 @@ while True:
     print("Testing IC [{0}]".format(ic_to_test))
     print("")
     r.set_led_ready()
-    print("Waiting for button press")
+    print("Waiting for button press...")
     r.wait_for_press()
     r.set_led_ready(False)
 
@@ -85,7 +87,7 @@ while True:
                 ic_pin_num  = [x for x in ic.pins if ic.pins[x][1] == ic_pin_name][0]
                 if ic.pins[ic_pin_num][0] == 'O':
                   if r.read_pin(ic.get_zif_padname(ic_pin_num)) != (True if template_row[template_column]=='1' else False):
-                    print( "     ERROR!")
+                    print( "     Incorrect result!")
                     ok = False
         print("")
     print("")
