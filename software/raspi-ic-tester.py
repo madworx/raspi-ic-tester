@@ -15,7 +15,9 @@ ics = []
 for icdef in glob.glob('*.md'):
     icdata = ICDefinitionParser.parse_file(icdef)
     ics.append(ICDefinitionParser.IC(icdata))
-    
+
+r.zero_all_pins()
+
 while True:
     print("")
     ic_id_to_test = input("Enter IC name/number to test> ")
@@ -35,6 +37,12 @@ while True:
         ic_to_test = match[int(selected)]
     else:
         ic_to_test = matching_ics[0]
+
+    iterations = input("Iterations (1)> ")
+    if iterations == "":
+        iterations = 1
+    else:
+        iterations = int(iterations)
 
     ic = ic_to_test
     print("Testing IC [{0}]".format(ic_to_test))
@@ -63,34 +71,40 @@ while True:
 
     ok = True
     print("Running tests")
-    for test in ic.tests.keys():
-        print(" * {}".format(test))
-        for template_row in ic.template:
-            print("   * {} (Mapped: {})".format(template_row['Description'], ic.tests[test]))
+    while iterations > 0:
+        for test in ic.tests.keys():
+            if iterations == 1:
+                print(" * {} (Mapped: {})".format(test, ic.tests[test]))
+            for template_row in ic.template:
+                if iterations == 1:
+                    print("   * {}".format(template_row['Description']))
 
-            # Set all IC inputs correctly (RPI outputs)
-            for template_column in template_row:
-              if template_column != 'Description':
-                # Lookup actual pin in test case:
-                ic_pin_name = [x for x in ic.tests[test] if ic.tests[test][x] == template_column][0]
-                ic_pin_num  = [x for x in ic.pins if ic.pins[x][1] == ic_pin_name][0]
-                if ic.pins[ic_pin_num][0] == 'I':
-                  r.set_pin(ic.get_zif_padname(ic_pin_num), 
-                            True if template_row[template_column]=='1' 
-                            else False)
+                # Set all IC inputs correctly (RPI outputs)
+                for template_column in template_row:
+                    if template_column != 'Description':
+                        # Lookup actual pin in test case:
+                        ic_pin_name = [x for x in ic.tests[test] if ic.tests[test][x] == template_column][0]
+                        ic_pin_num  = [x for x in ic.pins if ic.pins[x][1] == ic_pin_name][0]
+                        if ic.pins[ic_pin_num][0] == 'I':
+                            r.set_pin(ic.get_zif_padname(ic_pin_num),
+                                        True if template_row[template_column]=='1'
+                                        else False)
 
-            # Validate all IC outputs correctly (RPI inputs)
-            for template_column in template_row:
-              if template_column != 'Description':
-                # Lookup actual pin in test case:
-                ic_pin_name = [x for x in ic.tests[test] if ic.tests[test][x] == template_column][0]
-                ic_pin_num  = [x for x in ic.pins if ic.pins[x][1] == ic_pin_name][0]
-                if ic.pins[ic_pin_num][0] == 'O':
-                  if r.read_pin(ic.get_zif_padname(ic_pin_num)) != (True if template_row[template_column]=='1' else False):
-                    print( "     Incorrect result!")
-                    ok = False
-        print("")
-    print("")
+                # Validate all IC outputs correctly (RPI inputs)
+                for template_column in template_row:
+                    if template_column != 'Description':
+                        # Lookup actual pin in test case:
+                        ic_pin_name = [x for x in ic.tests[test] if ic.tests[test][x] == template_column][0]
+                        ic_pin_num  = [x for x in ic.pins if ic.pins[x][1] == ic_pin_name][0]
+                        if ic.pins[ic_pin_num][0] == 'O':
+                            if r.read_pin(ic.get_zif_padname(ic_pin_num)) != (True if template_row[template_column]=='1' else False):
+                                print( "     Incorrect result!")
+                                ok = False
+            if iterations == 1:
+                print("")
+        if iterations == 1:
+            print("")
+        iterations = iterations - 1
 
     r.zero_all_pins()
     r.set_led_ok(ok)
