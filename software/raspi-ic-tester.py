@@ -4,6 +4,7 @@ import glob
 import re
 import sys
 import time
+import random
 
 import ICDefinitionParser
 import RPIICTester
@@ -11,11 +12,13 @@ import RPIICTester
 r = RPIICTester.RPIICTester()
 
 ics = []
+print("Loading IC definitions.")
 # glob the glob....
 for icdef in glob.glob('*.md'):
     icdata = ICDefinitionParser.parse_file(icdef)
     ics.append(ICDefinitionParser.IC(icdata))
 
+print("Putting all pins into passive state.")
 r.zero_all_pins()
 
 while True:
@@ -80,11 +83,19 @@ while True:
 
     ok = True
     print("Running tests")
+    ready_led = False
+    last_time = 0
     while iterations > 0:
         for test in ic.tests.keys():
+            _set_pins = {}
             if iterations == 1:
                 print(" * {} (Mapped: {})".format(test, ic.tests[test]))
             for template_row in ic.template:
+                now_time = time.time()
+                if (now_time - last_time > 0.3):
+                    ready_led = not ready_led
+                    r.set_led_ready(ready_led)
+                    last_time = now_time
                 if iterations == 1:
                     print("   * {}".format(template_row['Description']))
 
@@ -95,9 +106,30 @@ while True:
                         ic_pin_name = [x for x in ic.tests[test] if ic.tests[test][x] == template_column][0]
                         ic_pin_num  = [x for x in ic.pins if ic.pins[x][1] == ic_pin_name][0]
                         if ic.pins[ic_pin_num][0] == 'I':
+                            if template_row[template_column]=='1':
+                                value_to_set = True
+                            elif template_row[template_column]=='0':
+                                value_to_set = False
+                            elif template_row[template_column]=='R':
+                                value_to_set = random.choice([True, False])
                             r.set_pin(ic.get_zif_padname(ic_pin_num),
-                                        True if template_row[template_column]=='1'
-                                        else False)
+                                      value_to_set)
+                            _set_pins[ic_pin_num] = value_to_set
+
+                # Set possible left-overs: ("Variable" expansion)
+                for template_column in template_row:
+                    if template_column != 'Description':
+                        # Lookup actual pin in test case:
+                        ic_pin_name = [x for x in ic.tests[test] if ic.tests[test][x] == template_column][0]
+                        ic_pin_num  = [x for x in ic.pins if ic.pins[x][1] == ic_pin_name][0]
+                        if ic.pins[ic_pin_num][0] == 'I':
+                            if template_row[template_column] not in ['1','0','R']:
+                                # Might be a reference to the set value of an input:
+                                lookup_input = [x for x in ic.pins if ic.pins[x][1] == template_row[template_column]][0]
+                                if lookup_input:
+                                    r.set_pin(ic.get_zif_padname(ic_pin_num),_set_pins[lookup_input])
+                                else:
+                                    raise AssertionError("Don't understand {0}".format(template_row[template_column]))
 
                 # Validate all IC outputs correctly (RPI inputs)
                 for template_column in template_row:
@@ -116,6 +148,7 @@ while True:
             print("")
         iterations = iterations - 1
 
+    r.set_led_ready(False)
     r.zero_all_pins()
     r.set_led_ok(ok)
     r.set_led_fail(not ok)
