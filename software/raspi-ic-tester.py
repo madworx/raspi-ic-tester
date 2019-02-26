@@ -66,8 +66,17 @@ while True:
         elif ic.pins[pin][0] == '1':
             print("Pin {0} ({1}) set to STATIC HIGH".format(pin, zifname))
             r.set_pin(zifname, True)
+        elif ic.pins[pin][0] == 'VCC':
+            print("Pin {0} ({1}) set to EXTERNAL POWER".format(pin, zifname))
+            r.read_pin(zifname)
+        elif ic.pins[pin][0] == 'GND':
+            print("Pin {0} ({1}) set to EXTERNAL GROUND".format(pin, zifname))
+            r.read_pin(zifname)
         else:
             raise AssertionError("Don't understand {0}".format(ic.pins[pin][0]))
+
+    # Sleep for 0.1 second to allow power supply to stabilize:
+    time.sleep(0.1)
 
     ok = True
     print("Running tests")
@@ -96,9 +105,10 @@ while True:
                         # Lookup actual pin in test case:
                         ic_pin_name = [x for x in ic.tests[test] if ic.tests[test][x] == template_column][0]
                         ic_pin_num  = [x for x in ic.pins if ic.pins[x][1] == ic_pin_name][0]
-                        if ic.pins[ic_pin_num][0] == 'O':
-                            if r.read_pin(ic.get_zif_padname(ic_pin_num)) != (True if template_row[template_column]=='1' else False):
-                                print( "     Incorrect result!")
+                        if ic.pins[ic_pin_num][0] == 'O' and template_row[template_column]!='x':
+                            expect = (True if template_row[template_column]=='1' else False)
+                            if r.read_pin(ic.get_zif_padname(ic_pin_num)) != expect:
+                                print( "       ! Incorrect result (Expected pin {} to be {})!".format(ic_pin_num, expect))
                                 ok = False
             if iterations == 1:
                 print("")
@@ -111,4 +121,3 @@ while True:
     r.set_led_fail(not ok)
     time.sleep(2)
     r.zero_all_pins()
-

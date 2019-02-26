@@ -21,6 +21,7 @@ class RPIICTester(object):
         self._i2c = busio.I2C(board.SCL, board.SDA)
         self._mcps = {}
         self._pins = {}
+        self._pindir = {}
         self._load_expander_netlist()
 
     def _load_expander_netlist(self):
@@ -49,25 +50,36 @@ class RPIICTester(object):
     def _get_pin(self, name):
         return self._pins[name]
 
+    def _set_pin_direction(self,pin,direction):
+        if pin in self._pindir:
+            old_value = self._pindir[pin]
+            if old_value == direction:
+                return
+        if direction == digitalio.Direction.INPUT:
+            pin.direction = digitalio.Direction.INPUT
+            pin.pull = None
+        elif direction == digitalio.Direction.OUTPUT:
+            pin.direction = digitalio.Direction.OUTPUT
+        self._pindir[pin] = direction
+
     def zero_all_pins(self):
         """Put all pins into input mode with no pull-up."""
         for pinname in self._pins:
             pin = self._get_pin(pinname)
-            pin.direction = digitalio.Direction.INPUT
-            pin.pull = None
+            self._set_pin_direction(pin,digitalio.Direction.INPUT)
 
     def read_pin(self, name):
         """Configure the given pin (e.g. "ZIF03") as an input pin,
         and read the value from it."""
         pin = self._get_pin(name)
-        pin.direction = digitalio.Direction.INPUT
+        self._set_pin_direction(pin,digitalio.Direction.INPUT)
         return pin.value
 
     def set_pin(self, name, value=True):
         """Configure the given pin (e.g. "ZIF24") as an output pin,
         and set it to the specified value."""
         pin = self._get_pin(name)
-        pin.direction = digitalio.Direction.OUTPUT
+        self._set_pin_direction(pin,digitalio.Direction.OUTPUT)
         pin.value = value
 
     def set_led_ok(self, value=True):
